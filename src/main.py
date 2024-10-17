@@ -9,7 +9,12 @@ def main():
                 continue
             lexer = Lexer(text)
             parser = Parser(lexer)
-            result = parser.expr()
+            
+            if lexer.get_next_token()[0] == 'ID' and parser.current_token[0] == 'EQUALS':
+                result = parser.assign()
+            else:
+                result = parser.expr()
+                
             print(result)
         except Exception as e:
             print(e)
