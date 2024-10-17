@@ -29,6 +29,14 @@ class Lexer:
             result += self.current_char
             self.advance()
         return int(result)
+
+    def identifier(self):
+        """Return an identifier from the input."""
+        result = ''
+        while self.current_char is not None and (self.current_char.isalnum() or self.current_char == '_'):
+            result += self.current_char
+            self.advance()
+        return result
     
     def get_next_token(self):
         """Lexical analyzer (tokenizer)."""
@@ -36,6 +44,11 @@ class Lexer:
             if self.current_char.isspace():
                 self.skip_whitespace()
                 continue
+            if self.current_char.isalpha():
+                ident = self.identifier()
+                if ident in ['sqrt', 'sin', 'cos']:
+                    return ('FUNC', ident)
+                return ('ID', ident)
             if self.current_char.isdigit():
                 return ('NUMBER', self.number())
             if self.current_char == '+':
@@ -56,6 +69,9 @@ class Lexer:
             if self.current_char == ')':
                 self.advance()
                 return ('RPAREN', ')')
+            if self.current_char == '=':
+                self.advance()
+                return ('EQUALS', '=')
             self.error()
 
         return ('EOF', None)
