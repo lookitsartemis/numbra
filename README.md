@@ -1,2 +1,5 @@
 # numbra
-A toy language focused on math
+
+A toy language focused on math.
+
+Built with Python!
