@@ -1,7 +1,10 @@
+import math
+
 class Parser:
     def __init__(self, lexer):
         self.lexer = lexer
         self.current_token = self.lexer.get_next_token()
+        self.variables = {}
 
     def error(self):
         raise Exception("Invalid syntax")
@@ -13,18 +16,43 @@ class Parser:
         else:
             self.error()
 
+    def assign(self):
+        """assign : ID '=' expr"""
+        var_name = self.current_token[1]
+        self.eat('ID')
+        self.eat('EQUALS') 
+        value = self.expr()
+        self.variables[var_name] = value
+        return value
+
     def factor(self):
-        """factor : NUMBER | LPAREN expr RPAREN"""
-        if self.current_token[0] == 'LPAREN':
+        """factor : NUMBER | ID | LPAREN expr RPAREN | FUNC LPAREN expr RPAREN"""
+        if self.current_token[0] == 'FUNC':
+            func_name = self.current_token[1]
+            self.eat('FUNC')
+            self.eat('LPAREN')
+            arg = self.expr()
+            self.eat('RPAREN')
+            
+            if func_name == 'sqrt':
+                return math.sqrt(arg)
+            elif func_name == 'sin':
+                return math.sin(arg)
+            elif func_name == 'cos':
+                return math.cos(arg)
+        elif self.current_token[0] == 'LPAREN':
             self.eat('LPAREN')
             result = self.expr()
             self.eat('RPAREN')
             return result
+        elif self.current_token[0] == 'ID':
+            var_name = self.current_token[1]
+            self.eat('ID')
+            return self.variables.get(var_name, 0)
         else:
             token = self.current_token
             self.eat('NUMBER')
             return token[1]
-
 
     def term(self):
         """term : factor ((MUL | DIV) factor)*"""
